@@ -88,14 +88,14 @@ const SEARCH_INDEX = [
   {type:"tool",label:"Size Guide Generator",desc:"AI · Products",id:"products",icon:"◫"},
 ];
 
-const call = async (prompt, sys = "You are a fashion brand expert. Be concise, creative, bold.") => {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
+ const call = async (prompt, sys = "You are a fashion brand expert. Be concise, creative, bold.") => {
+  const r = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 500, system: sys, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ prompt, system: sys }),
   });
   const d = await r.json();
-  return d.content?.[0]?.text || "Error.";
+  return d.text || "Error.";
 };
 
 function Sp() { return <span className="spin" style={{ display: "inline-block", fontSize: 13 }}>◌</span>; }
