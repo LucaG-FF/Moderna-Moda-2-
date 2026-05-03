@@ -205,6 +205,114 @@ function AIBlock({ title, placeholder, promptFn, sys }) {
 }
 
 /* ── DISCOVER (Landing) ── */
+function OnboardingScreen({ user, onSave }) {
+  const [step, setStep] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const [data, setData] = useState({
+    brand_name: "",
+    handle: "",
+    bio: "",
+    style: "",
+    location: "",
+    user_type: "brand",
+  });
+
+  const update = (k, v) => setData(d => ({ ...d, [k]: v }));
+
+  const handleSave = async () => {
+    setBusy(true);
+    await onSave(data);
+    setBusy(false);
+  };
+
+  return (
+    <div style={{ background: C.bgCard, borderRadius: 16, padding: 40, width: "100%", maxWidth: 480, border: `0.5px solid ${C.border}` }}>
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: C.accent, marginBottom: 6 }}>STEP {step} OF 2</div>
+        <div style={{ height: 2, background: C.border, borderRadius: 1 }}>
+          <div style={{ height: 2, width: step === 1 ? "50%" : "100%", background: C.accent, borderRadius: 1, transition: "width 0.3s" }} />
+        </div>
+      </div>
+
+      {step === 1 && (
+        <div className="fu">
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px", letterSpacing: "-0.03em" }}>Build your brand</h2>
+          <p style={{ fontSize: 13, color: C.textSub, margin: "0 0 24px" }}>Let's set up your workspace</p>
+
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 6px" }}>BRAND NAME</p>
+            <input value={data.brand_name} onChange={e => update("brand_name", e.target.value)}
+              placeholder="e.g. VLTG Studio" style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none" }} />
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 6px" }}>HANDLE</p>
+            <input value={data.handle} onChange={e => update("handle", e.target.value)}
+              placeholder="@yourbrand" style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none" }} />
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 6px" }}>LOCATION</p>
+            <input value={data.location} onChange={e => update("location", e.target.value)}
+              placeholder="e.g. Milan, IT" style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none" }} />
+          </div>
+
+          <button onClick={() => setStep(2)} disabled={!data.brand_name}
+            style={{ width: "100%", padding: "13px 0", borderRadius: 10, border: "none", cursor: data.brand_name ? "pointer" : "not-allowed",
+              background: C.black, color: "#fff", fontSize: 14, fontWeight: 600, fontFamily: "Space Grotesk, sans-serif", opacity: data.brand_name ? 1 : 0.4, marginTop: 8 }}>
+            Continue →
+          </button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="fu">
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px", letterSpacing: "-0.03em" }}>Your style</h2>
+          <p style={{ fontSize: 13, color: C.textSub, margin: "0 0 24px" }}>Help the community discover you</p>
+
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 10px" }}>I AM A</p>
+            <div style={{ display: "flex", gap: 8 }}>
+              {["brand", "artigiano"].map(t => (
+                <button key={t} onClick={() => update("user_type", t)}
+                  style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `0.5px solid ${data.user_type === t ? C.accent : C.border}`,
+                    background: data.user_type === t ? C.accent : "transparent", color: data.user_type === t ? "#fff" : C.textSub,
+                    fontSize: 13, fontWeight: 600, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer" }}>
+                  {t === "brand" ? "Brand Creator" : "Artigiano"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 6px" }}>STYLE / CATEGORY</p>
+            <input value={data.style} onChange={e => update("style", e.target.value)}
+              placeholder="e.g. Streetwear, Luxury, Minimal..." style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none" }} />
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 6px" }}>SHORT BIO</p>
+            <textarea value={data.bio} onChange={e => update("bio", e.target.value)}
+              placeholder="What's your brand about?" rows={3}
+              style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none", resize: "none" }} />
+          </div>
+
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={() => setStep(1)}
+              style={{ padding: "13px 20px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: "transparent", color: C.textSub, fontSize: 14, fontWeight: 600, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer" }}>
+              ← Back
+            </button>
+            <button onClick={handleSave} disabled={busy}
+              style={{ flex: 1, padding: "13px 0", borderRadius: 10, border: "none", cursor: busy ? "not-allowed" : "pointer",
+                background: C.black, color: "#fff", fontSize: 14, fontWeight: 600, fontFamily: "Space Grotesk, sans-serif", opacity: busy ? 0.6 : 1 }}>
+              {busy ? "..." : "Launch my brand →"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 function Discover() {
   const [filter, setFilter] = useState("all");
   const [liked, setL] = useState({});
@@ -573,17 +681,31 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
-
-  useEffect(() => {
+const [profile, setProfile] = useState(null);
+const [onboarding, setOnboarding] = useState(false);
+ useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) loadProfile(session.user.id);
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) loadProfile(session.user.id);
+      else setProfile(null);
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadProfile = async (userId) => {
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    setProfile(data || null);
+  };
+
+  const saveProfile = async (profileData) => {
+    const { data, error } = await supabase.from("profiles").upsert({ id: user.id, ...profileData });
+    if (!error) setProfile(profileData);
+  };
 
   const handleSignup = async () => {
     setAuthBusy(true); setAuthError("");
@@ -621,7 +743,15 @@ export default function App() {
       <span className="spin" style={{ fontSize: 24, color: C.accent }}>◌</span>
     </div>
   );
-
+if (user && !profile && !onboarding) {
+    // New user — show onboarding
+    return (
+      <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif" }}>
+        <style>{css}</style>
+        <OnboardingScreen user={user} onSave={saveProfile} />
+      </div>
+    );
+  }
   if (!user) return (
     <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif" }}>
       <style>{css}</style>
