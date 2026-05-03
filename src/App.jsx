@@ -682,11 +682,17 @@ export default function App() {
   const [authError, setAuthError] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
 const [profile, setProfile] = useState(null);
+const [profileLoading, setProfileLoading] = useState(false);
 const [onboarding, setOnboarding] = useState(false);
  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) loadProfile(session.user.id);
+  const loadProfile = async (userId) => {
+    setProfileLoading(true);
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    setProfile(data || null);
+    setProfileLoading(false);
+  };
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -743,15 +749,7 @@ const [onboarding, setOnboarding] = useState(false);
       <span className="spin" style={{ fontSize: 24, color: C.accent }}>◌</span>
     </div>
   );
-if (user && !profile && !onboarding) {
-    // New user — show onboarding
-    return (
-      <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif" }}>
-        <style>{css}</style>
-        <OnboardingScreen user={user} onSave={saveProfile} />
-      </div>
-    );
-  }
+if (user && !profile && !onboarding) {if (user && !profileLoading && !profile) {}
   if (!user) return (
     <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif" }}>
       <style>{css}</style>
