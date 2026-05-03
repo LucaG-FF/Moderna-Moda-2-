@@ -124,17 +124,7 @@ function Badge({ label, color = C.black, bg = C.black, textColor = "#fff" }) {
   return <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", background: bg, color: textColor, padding: "2px 7px", borderRadius: 3 }}>{label}</span>;
 }
 
-function Ticker() {
-  return (
-    <div style={{ overflow: "hidden", borderTop: `0.5px solid ${C.border}`, padding: "6px 0", background: C.bgMuted }}>
-      <div style={{ display: "flex", animation: "marquee 22s linear infinite", width: "max-content" }}>
-        {[...Array(4)].map((_, i) => (
-          <span key={i} style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.16em", color: C.textMuted, whiteSpace: "nowrap", paddingRight: 40 }}>{TICKER}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
+
 
 function GlobalSearch({ onNav }) {
   const [q, setQ] = useState("");
@@ -828,7 +818,7 @@ if (user && !profile && !onboarding) {if (user && !profileLoading && !profile) {
             <span style={{ color: C.black, fontSize: 11, fontWeight: 700 }}>VS</span>
           </div>
         </div>
-        <Ticker />
+     
       </div>
 
       <div style={{ maxWidth: "100%", padding: "24px 24px 0" }}>
