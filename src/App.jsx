@@ -744,7 +744,7 @@ const [onboarding, setOnboarding] = useState(false);
 
   const View = VIEWS[active] || VIEWS.discover;
 
-  if (authLoading) return (
+  if (authLoading || profileLoading) return (
     <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <span className="spin" style={{ fontSize: 24, color: C.accent }}>◌</span>
     </div>
