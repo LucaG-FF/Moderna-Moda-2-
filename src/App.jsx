@@ -704,11 +704,12 @@ const [onboarding, setOnboarding] = useState(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) loadProfile(session.user.id);
-      else setProfile(null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+    const loadProfile = async (userId) => {
+    setProfileLoading(true);
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+    setProfile(data || null);
+    setProfileLoading(false);
+  };
 
   const loadProfile = async (userId) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
