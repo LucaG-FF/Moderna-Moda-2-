@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "./supabase";
 
 const C = {
   bg: "#F5F0E8",
@@ -562,6 +563,42 @@ export default function App() {
   const [active, setA] = useState("discover");
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState(null);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authMode, setAuthMode] = useState("login"); // "login" or "signup"
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authBusy, setAuthBusy] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignup = async () => {
+    setAuthBusy(true); setAuthError("");
+    const { error } = await supabase.auth.signUp({ email: authEmail, password: authPassword });
+    if (error) setAuthError(error.message);
+    setAuthBusy(false);
+  };
+
+  const handleLogin = async () => {
+    setAuthBusy(true); setAuthError("");
+    const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPassword });
+    if (error) setAuthError(error.message);
+    setAuthBusy(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   const handleToolClick = t => {
     if (t.id === "pricecalc") setModal("pricecalc");
@@ -571,10 +608,59 @@ export default function App() {
     discover: () => <Discover />,
     brand: () => <MyBrand onToolClick={handleToolClick} />,
     grow: () => <Grow />,
-    account: () => <Account onToast={msg => setToast(msg)} />,
+    account: () => <Account onToast={msg => setToast(msg)} onLogout={handleLogout} user={user} />,
   };
 
   const View = VIEWS[active] || VIEWS.discover;
+
+  if (authLoading) return (
+    <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <span className="spin" style={{ fontSize: 24, color: C.accent }}>◌</span>
+    </div>
+  );
+
+  if (!user) return (
+    <div style={{ background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif" }}>
+      <style>{css}</style>
+      <div style={{ background: C.bgCard, borderRadius: 16, padding: 40, width: "100%", maxWidth: 400, border: `0.5px solid ${C.border}` }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>MODERNA MODA</div>
+          <div style={{ fontSize: 13, color: C.textSub }}>{authMode === "login" ? "Welcome back" : "Create your brand"}</div>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 24, background: C.bgMuted, borderRadius: 10, padding: 4 }}>
+          {["login", "signup"].map(m => (
+            <button key={m} onClick={() => { setAuthMode(m); setAuthError(""); }}
+              style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "Space Grotesk, sans-serif",
+                background: authMode === m ? C.bgCard : "transparent",
+                color: authMode === m ? C.text : C.textSub,
+                boxShadow: authMode === m ? "0 1px 4px rgba(0,0,0,0.08)" : "none" }}>
+              {m === "login" ? "Log In" : "Sign Up"}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <input value={authEmail} onChange={e => setAuthEmail(e.target.value)}
+            placeholder="Email" type="email"
+            style={{ padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none", width: "100%" }} />
+          <input value={authPassword} onChange={e => setAuthPassword(e.target.value)}
+            placeholder="Password" type="password"
+            onKeyDown={e => e.key === "Enter" && (authMode === "login" ? handleLogin() : handleSignup())}
+            style={{ padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${C.border}`, background: C.bg, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", outline: "none", width: "100%" }} />
+        </div>
+
+        {authError && <div style={{ marginTop: 12, fontSize: 12, color: "#c0392b", background: "rgba(192,57,43,0.08)", padding: "8px 12px", borderRadius: 8 }}>{authError}</div>}
+
+        <button onClick={authMode === "login" ? handleLogin : handleSignup} disabled={authBusy}
+          style={{ marginTop: 16, width: "100%", padding: "13px 0", borderRadius: 10, border: "none", cursor: authBusy ? "not-allowed" : "pointer",
+            background: C.black, color: "#fff", fontSize: 14, fontWeight: 600, fontFamily: "Space Grotesk, sans-serif",
+            opacity: authBusy ? 0.6 : 1 }}>
+          {authBusy ? "..." : authMode === "login" ? "Log In" : "Create Account"}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ fontFamily: "'Space Grotesk',sans-serif", background: C.bg, minHeight: "100vh", padding: "0 0 60px" }}>
