@@ -399,7 +399,7 @@ function Grow() {
 }
 
 /* ── ACCOUNT ── */
-function Account({ onToast }) {
+function Account({ onToast, onLogout, user }) {
   const [tab, setTab] = useState("profile");
   const [brand, setBrand] = useState({ name: "VLTG Studio", handle: "@vltg", tag: "Streetwear", location: "Madrid, ES", email: "hello@vltgstudio.com", bio: "We make clothing for people who move on their own frequency.", insta: "@vltgstudio", tiktok: "@vltg" });
   const [followed, setF] = useState(false);
@@ -407,6 +407,7 @@ function Account({ onToast }) {
   const [bioOut, setBO] = useState("");
   const genBio = async () => { setBL(true); setBO(""); try { setBO(await call("Write a bold 2-sentence brand bio for VLTG Studio — Madrid streetwear 2025. Raw, authentic, editorial.", "Fashion copywriter. No fluff.")); } catch (e) { } setBL(false); };
   const save = () => onToast("Settings saved ✓");
+const logout = () => onLogout();
   const F = ({ label, k, placeholder }) => (
     <div style={{ marginBottom: 14 }}>
       <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, margin: "0 0 6px" }}>{label}</p>
@@ -488,8 +489,10 @@ function Account({ onToast }) {
             </div>
           </div>
           <div style={{ gridColumn: "1/-1", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: `0.5px solid ${C.border}` }}>
-            <button style={{ fontSize: 11, padding: "8px 18px", borderRadius: 20, border: `0.5px solid rgba(200,50,50,0.3)`, background: "transparent", color: "rgba(200,50,50,0.7)", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>Delete workspace</button>
-            <button onClick={save} style={{ fontSize: 11, padding: "9px 28px", borderRadius: 20, border: "none", background: C.black, color: "#fff", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, letterSpacing: "0.06em" }}>SAVE CHANGES</button>
+<div style={{ display: "flex", gap: 10 }}>
+  <button onClick={logout} style={{ fontSize: 11, padding: "8px 18px", borderRadius: 20, border: `0.5px solid ${C.borderStrong}`, background: "transparent", color: C.textSub, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>Log Out</button>
+  <button style={{ fontSize: 11, padding: "8px 18px", borderRadius: 20, border: `0.5px solid rgba(200,50,50,0.3)`, background: "transparent", color: "rgba(200,50,50,0.7)", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>Delete workspace</button>
+</div>            <button onClick={save} style={{ fontSize: 11, padding: "9px 28px", borderRadius: 20, border: "none", background: C.black, color: "#fff", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, letterSpacing: "0.06em" }}>SAVE CHANGES</button>
           </div>
         </div>
       )}
