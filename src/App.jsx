@@ -689,6 +689,13 @@ const [onboarding, setOnboarding] = useState(false);
       setUser(session?.user ?? null);
   const loadProfile = async (userId) => {
     setProfileLoading(true);
+    console.log("Loading profile for:", userId);
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    console.log("Profile data:", data, "Error:", error);
+    setProfile(data || null);
+    setProfileLoading(false);
+  };
+    setProfileLoading(true);
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     setProfile(data || null);
     setProfileLoading(false);
